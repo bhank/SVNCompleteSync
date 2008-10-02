@@ -1,0 +1,11 @@
+D:\projekte\playground\SvnClient\SvnClient\obj\Debug\ResolveAssemblyReference.cache
+D:\projekte\playground\SvnClient\SvnClient\bin\Debug\SvnClient.exe
+D:\projekte\playground\SvnClient\SvnClient\bin\Debug\SvnClient.pdb
+D:\projekte\playground\SvnClient\SvnClient\bin\Debug\SharpSvn.dll
+D:\projekte\playground\SvnClient\SvnClient\bin\Debug\SharpSvn.pdb
+D:\projekte\playground\SvnClient\SvnClient\bin\Debug\SharpSvn.xml
+D:\projekte\playground\SvnClient\SvnClient\bin\Debug\SharpSvn-DB44-20-Win32.dll
+D:\projekte\playground\SvnClient\SvnClient\bin\Debug\SharpSvn-SASL21-22-Win32.dll
+D:\projekte\playground\SvnClient\SvnClient\bin\Debug\SharpPlink-Win32.svnExe
+D:\projekte\playground\SvnClient\SvnClient\obj\Debug\SvnClient.exe
+D:\projekte\playground\SvnClient\SvnClient\obj\Debug\SvnClient.pdb
