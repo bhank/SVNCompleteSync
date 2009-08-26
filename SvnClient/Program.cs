@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using SharpSvn;
 using System.Collections.ObjectModel;
+
 namespace SvnClient
 {
     class Program
@@ -57,14 +58,24 @@ namespace SvnClient
                     client.GetStatus(path, out changedFiles);
                     
                     //delete files from subversion that are not in filesystem
-                    //add files to suversion , that are new in filesystem
+                    //add files to subversion that are new in filesystem
+                    //modified files are automatically included as part of the commit
 
                     //TODO: check remoteStatus
                     foreach (SvnStatusEventArgs changedFile in changedFiles)
                     {
                         if (changedFile.LocalContentStatus == SvnStatus.Missing)
                         {
-                            client.Delete(changedFile.Path);
+                            // SVN thinks file is missing but it still exists hence
+                            // a change in the case of the filename.
+                            if (System.IO.File.Exists(changedFile.Path))
+                            {
+                                SvnDeleteArgs changed_args = new SvnDeleteArgs();
+                                changed_args.KeepLocal = true;
+                                client.Delete(changedFile.Path, changed_args);
+                            }
+                            else
+                                client.Delete(changedFile.Path);
                         }
                         if (changedFile.LocalContentStatus == SvnStatus.NotVersioned)
                         {
