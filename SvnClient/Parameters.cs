@@ -25,6 +25,7 @@ namespace SvnClient
         public bool DeleteUnversioned { get; private set; }
         public bool TrustServerCert { get; private set; }
         public bool Mkdir { get; private set; }
+        public bool Verbose { get; private set; }
 
         public static bool TryParse(IList<string> args, out Parameters parameters)
         {
@@ -47,6 +48,7 @@ namespace SvnClient
                             {"deleteunversioned", "Delete unversioned files from working copy first (CheckoutUpdate only)",v => p.DeleteUnversioned = (v != null)},
                             {"cleanworkingcopy", "Same as --revert --cleanup --deleteunversioned (CheckoutUpdate only)", v => p.Revert = p.Cleanup = p.DeleteUnversioned = (v != null)},
                             {"mkdir", "Create the URL if it doesn't exist (CheckoutUpdate only)", v => p.Mkdir = (v != null)},
+                            {"v|verbose", "Print extra messages", v => p.Verbose = (v != null)},
                         };
             var extraArgs = optionSet.Parse(args);
             

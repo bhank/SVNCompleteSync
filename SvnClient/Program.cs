@@ -74,8 +74,10 @@ namespace SvnClient
                         }
                     }
 
+                    DebugMessage(parameters, "Checking out");
                     if (client.CheckOut(SvnUriTarget.FromString(parameters.Url), parameters.Path, out svnUpdateResult))
                     {
+                        DebugMessage(parameters, "Done");
                         Console.WriteLine("Checked out r" + svnUpdateResult.Revision);
                         return;
                     }
@@ -95,29 +97,50 @@ namespace SvnClient
                 
                 if(parameters.Cleanup)
                 {
+                    DebugMessage(parameters, "Cleaning up");
                     client.CleanUp(parameters.Path);
+                    DebugMessage(parameters, "Done");
                 }
 
                 if(parameters.Revert)
                 {
+                    DebugMessage(parameters, "Reverting");
                     client.Revert(parameters.Path);
+                    DebugMessage(parameters, "Done");
                 }
 
                 if (parameters.DeleteUnversioned)
                 {
+                    DebugMessage(parameters, "Deleting unversioned files");
                     Collection<SvnStatusEventArgs> changedFiles;
                     client.GetStatus(parameters.Path, out changedFiles);
                     foreach (var changedFile in changedFiles)
                     {
                         if(changedFile.LocalContentStatus == SvnStatus.NotVersioned)
                         {
-                            File.Delete(changedFile.FullPath);
+                            if(changedFile.NodeKind == SvnNodeKind.Directory)
+                            {
+                                DebugMessage(parameters, "NodeKind is directory for [" + changedFile.FullPath + "]");
+                            }
+                            if ((File.GetAttributes(changedFile.FullPath) & FileAttributes.Directory) == FileAttributes.Directory)
+                            {
+                                DebugMessage(parameters, "Deleting directory [" + changedFile.FullPath + "] recursively!");
+                                Directory.Delete(changedFile.FullPath, true);
+                            }
+                            else
+                            {
+                                DebugMessage(parameters, "Deleting file [" + changedFile.FullPath + "]");
+                                File.Delete(changedFile.FullPath);
+                            }
                         }
                     }
+                    DebugMessage(parameters, "Done");
                 }
 
+                DebugMessage(parameters, "Updating");
                 if(client.Update(parameters.Path, out svnUpdateResult))
                 {
+                    DebugMessage(parameters, "Done");
                     Console.WriteLine("Updated to r" + svnUpdateResult.Revision);
                     return;
                 }
@@ -155,14 +178,19 @@ namespace SvnClient
 
                 if (parameters.UpdateBeforeCompleteSync)
                 {
+                    DebugMessage(parameters, "Updating");
                     client.Update(parameters.Path);
+                    DebugMessage(parameters, "Done");
                 }
 
                 Collection<SvnStatusEventArgs> changedFiles;
+                DebugMessage(parameters, "Getting status");
                 client.GetStatus(parameters.Path, out changedFiles);
+                DebugMessage(parameters, "Done");
                 if(changedFiles.Count == 0)
                 {
                     Console.WriteLine("No changes to commit.");
+                    return;
                 }
 
                 //delete files from subversion that are not in filesystem
@@ -170,6 +198,7 @@ namespace SvnClient
                 //modified files are automatically included as part of the commit
 
                 //TODO: check remoteStatus
+                DebugMessage(parameters, "Recording changes");
                 foreach (var changedFile in changedFiles)
                 {
                     if (changedFile.LocalContentStatus == SvnStatus.Missing)
@@ -189,16 +218,35 @@ namespace SvnClient
                         client.Add(changedFile.Path);
                     }
                 }
+                DebugMessage(parameters, "Done");
 
                 var ca = new SvnCommitArgs {LogMessage = parameters.Message};
                 SvnCommitResult result;
-                client.Commit(parameters.Path, ca, out result);
-                if(!string.IsNullOrEmpty(result.PostCommitError))
+                DebugMessage(parameters, "Committing");
+                if (client.Commit(parameters.Path, ca, out result))
                 {
-                    Console.WriteLine("Post-commit hook error: " + result.PostCommitError);
-                    return;
+                    DebugMessage(parameters, "Done");
+                    if(result == null)
+                    {
+                        Console.WriteLine("No result returned from commit.");
+                        return;
+                    }
+                    if (!string.IsNullOrEmpty(result.PostCommitError))
+                    {
+                        Console.WriteLine("Post-commit hook error: " + result.PostCommitError);
+                        return;
+                    }
+                    Console.WriteLine("Committed r" + result.Revision);
                 }
-                Console.WriteLine("Committed r" + result.Revision);
+                else
+                {
+                    if (result != null && !string.IsNullOrEmpty(result.PostCommitError))
+                    {
+                        Console.WriteLine("Post-commit hook error after failed commit: " + result.PostCommitError);
+                        return;
+                    }
+                    Console.WriteLine("Commit failed.");
+                }
             }
         }
 
@@ -213,6 +261,15 @@ namespace SvnClient
             if(parameters.TrustServerCert)
             {
                 TrustUnsignedCertificates(client);
+            }
+        }
+
+        private static void DebugMessage(Parameters parameters, string format, params object[] args)
+        {
+            if(parameters.Verbose)
+            {
+                Console.Write(DateTime.Now + "\t");
+                Console.WriteLine(string.Format(format, args));
             }
         }
     }
