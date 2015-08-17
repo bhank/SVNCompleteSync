@@ -1,16 +1,15 @@
 SVNCompleteSync
 ===============
 
-SVNCompleteSync is a C# Subversion client console app which syncs a local directory to a SVN repository. New files are added and deleted files are removed.
+**Download the [latest release][1] from GitHub!**
 
-It was originally written by HappySpider and hosted at http://svncompletesync.codeplex.com/ . It uses the SharpSvn libraries. http://sharpsvn.open.collab.net/
-
-A binary is available at http://www.coyne.nu/tools/svncompletesync.html .
+SVNCompleteSync is a C# Subversion client console app which syncs a local directory to a SVN repository. New files are added and deleted files are removed. It was [originally written by HappySpider][2]. It uses the [SharpSvn][3] libraries.
 
 Changes in my version:
+
 * Adds a checkoutupdate command which will check out or update an SVN URL to a local directory (optionally cleaning the local working copy, or creating the remote URL)
 * Improved command-line interface with new options
-* Uses newer SharpSvn libraries for SVN 1.7 compatibility
+* Uses newer SharpSvn libraries for SVN 1.9 compatibility
 
 
 Examples:
@@ -26,3 +25,7 @@ Committing any changes in the local working copy to SVN. Files added or deleted 
 It works well with https://github.com/bhank/ScriptDB to script SQL databases to SVN.
 
 -Adam Coyne
+
+[1]: https://github.com/bhank/SVNCompleteSync/releases
+[2]: http://svncompletesync.codeplex.com/
+[3]: http://sharpsvn.open.collab.net/
